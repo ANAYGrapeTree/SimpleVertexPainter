@@ -37,6 +37,8 @@ namespace SVTXPainterEditor
         private Mesh curMesh;
         private SVTXObject m_target;
         private GameObject m_active;
+        private List<Vector3> verts = new List<Vector3>();
+        private List<Color> colors = new List<Color>();
 
         #endregion
 
@@ -249,17 +251,14 @@ namespace SVTXPainterEditor
                         m_target.PushUndo();
                         isRecord = false;
                     }
-                    Vector3[] verts = curMesh.vertices;
-                    Color[] colors = new Color[0];
-                    if (curMesh.colors.Length > 0)
+                    curMesh.GetVertices(verts);
+                    curMesh.GetColors(colors);
+                    if (colors.Count < 1)
                     {
-                        colors = curMesh.colors;
+                        colors?.Clear();
+                        colors.AddRange(new Color[verts.Count]);
                     }
-                    else
-                    {
-                        colors = new Color[verts.Length];
-                    }
-                    for (int i = 0; i < verts.Length; i++)
+                    for (int i = 0; i < verts.Count; i++)
                     {
                         Vector3 vertPos = m_target.transform.TransformPoint(verts[i]);
                         float mag = (vertPos - curHit.point).magnitude;
@@ -279,7 +278,9 @@ namespace SVTXPainterEditor
                         }
                         //Debug.Log("Blend");
                     }
-                    curMesh.colors = colors;
+                    curMesh.SetColors(colors);
+                    verts?.Clear();
+                    colors?.Clear();
                 }
                 else
                 {
